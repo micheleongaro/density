@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Conversione tra densità osservata e densità di riferimento a 15 °C e dei volumi per prodotti petroliferi raffinati (Tabelle ASTM/API 53B e 54B).">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Densità a 15 °C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: banco di laboratorio — testata compatta, calcolatore a due colonne (ingressi | lettura), poi istruzioni e metodo in colonna di lettura */
+:root {
+  --bg: #eef1f2;
+  --panel: #ffffff;
+  --sunk: #e4e9eb;
+  --ink: #15232b;
+  --muted: #56666f;
+  --line: #cdd6da;
+  --accent: #a85a17;
+  --accent-soft: #f5e6d6;
+  --warn: #9a3412;
+  --warn-soft: #fbe9df;
+  --ok: #1f6b4f;
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f171c; --panel: #16222a; --sunk: #0b1216; --ink: #e2e9ec; --muted: #94a5ae;
+    --line: #2a3a44; --accent: #e3a35f; --accent-soft: #33261a; --warn: #f0a07a; --warn-soft: #3a2018; --ok: #7fcfaa;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f171c; --panel: #16222a; --sunk: #0b1216; --ink: #e2e9ec; --muted: #94a5ae;
+  --line: #2a3a44; --accent: #e3a35f; --accent-soft: #33261a; --warn: #f0a07a; --warn-soft: #3a2018; --ok: #7fcfaa;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+  display: grid; gap: 40px;
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; letter-spacing: .01em; text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(1.8rem, 4.2vw, 2.6rem); max-width: 22ch; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.2rem; }
+p { margin: 0; }
+a { color: var(--accent); }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+
+/* testata */
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+header .sub { color: var(--muted); max-width: 46ch; margin-top: 6px; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; }
+nav a { text-decoration: none; color: var(--ink); font-weight: 500; font-size: .9rem; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+nav a:hover { border-color: var(--accent); color: var(--accent); }
+nav a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, label.chk:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* calcolatore */
+.calc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.modes button {
+  font: inherit; border: 0; background: var(--sunk); color: var(--muted); cursor: pointer;
+  padding: 14px 16px; text-align: left; display: grid; gap: 2px;
+}
+.modes button + button { border-left: 1px solid var(--line); }
+.modes button strong { font-family: var(--f-display); font-size: 1.2rem; font-weight: 600; color: inherit; }
+.modes button span { font-size: .8rem; }
+.modes button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); }
+.calc-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+.inputs { padding: 22px; display: grid; gap: 16px; align-content: start; border-right: 1px solid var(--line); }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: .88rem; }
+.field .hint { font-size: .78rem; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+.row3 { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 8px; }
+.row3 select { width: auto; }
+@media (max-width: 440px) {
+  .row3 { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .row3 > :first-child { grid-column: 1 / -1; }
+  .row3 select { width: 100%; }
+}
+.big .alt { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--muted); font-size: .95rem; min-height: 1.4em; }
+input[type="number"], select {
+  font: inherit; font-family: var(--f-mono); font-size: 1.05rem; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+select { font-family: var(--f-body); font-size: .95rem; }
+input[type="number"]:focus, select:focus { border-color: var(--accent); }
+label.chk { display: flex; gap: 10px; align-items: flex-start; font-size: .86rem; cursor: pointer; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 6px; }
+label.chk input { margin-top: 3px; accent-color: var(--accent); }
+
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; background: var(--sunk); }
+.big { display: grid; gap: 4px; }
+.big .value { font-family: var(--f-mono); font-size: clamp(2.2rem, 6vw, 3.1rem); font-weight: 600; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.big .value small { font-size: .38em; font-weight: 400; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.kv div { background: var(--panel); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.kv dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.kv dd { margin: 0; font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: .98rem; overflow-wrap: anywhere; }
+.chip { display: inline-block; font-family: var(--f-body); font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--panel); }
+.msg { font-size: .85rem; padding: 10px 12px; border-radius: 6px; background: var(--warn-soft); color: var(--warn); }
+.toast { font-size: .82rem; color: var(--ok); min-height: 1.2em; }
+
+/* striscia temperature */
+.strip { padding: 18px 22px 22px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.strip-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.strip-head p { font-size: .82rem; color: var(--muted); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.strip table { min-width: 640px; }
+.strip th, .strip td { font-family: var(--f-mono); font-size: .82rem; padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+.strip th { font-weight: 600; color: var(--muted); }
+.strip td.cur, .strip th.cur { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.strip tr td:first-child, .strip tr th:first-child { text-align: left; font-family: var(--f-body); color: var(--muted); font-weight: 600; white-space: nowrap; padding-right: 10px; }
+
+/* sezioni di testo */
+section.text { display: grid; gap: 18px; }
+.text .lead { color: var(--muted); max-width: 68ch; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.prose { display: grid; gap: 12px; max-width: 68ch; }
+.prose p, .prose li { color: var(--ink); }
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 14px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 2rem minmax(0,1fr); gap: 10px; }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-weight: 700; font-size: 1.3rem; color: var(--accent); line-height: 1.2; }
+ol.steps b { display: block; }
+ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.formula { font-family: var(--f-mono); font-size: .92rem; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 6px; padding: 12px 14px; overflow-x: auto; white-space: pre; line-height: 1.7; }
+.coef th, .coef td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .88rem; }
+.coef th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.coef td.n { font-family: var(--f-mono); text-align: right; white-space: nowrap; }
+.coef { min-width: 520px; }
+.note { font-size: .86rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; max-width: 80ch; }
+footer { font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (max-width: 760px) {
+  .calc-body, .cols { grid-template-columns: minmax(0, 1fr); }
+  .inputs { border-right: 0; border-bottom: 1px solid var(--line); }
+  .modes button strong { font-size: 1.05rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .big .value { transition: color .2s; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Prodotti petroliferi raffinati · ASTM D1250 / API MPMS 11.1</div>
+      <h1>Conversione tra densità osservata e densità di riferimento a 15 °C</h1>
+      <p class="sub">Densità e volumi dei prodotti petroliferi raffinati con il metodo delle Tabelle 53B e 54B.</p>
+    </div>
+    <nav aria-label="Sezioni">
+      <a href="#calcolo">Calcolo</a>
+      <a href="#volumi">Volumi</a>
+      <a href="#istruzioni">Istruzioni</a>
+      <a href="#metodo">Metodo</a>
+    </nav>
+  </header>
+
+  <!-- CALCOLATORE -->
+  <section id="calcolo" class="calc" aria-label="Calcolatore">
+    <div class="modes" role="tablist">
+      <button id="tab-to15" role="tab" aria-selected="true" data-mode="to15">
+        <strong>Osservata → 15 °C</strong><span>Tabella 53B</span>
+      </button>
+      <button id="tab-fromt" role="tab" aria-selected="false" data-mode="fromt">
+        <strong>15 °C → temperatura t</strong><span>Tabella 54B</span>
+      </button>
+    </div>
+
+    <div class="calc-body">
+      <form class="inputs" id="form" novalidate>
+        <div class="field">
+          <label for="rho" id="rho-label">Densità osservata a t</label>
+          <div class="row3">
+            <input id="rho" type="number" step="any" inputmode="decimal" value="835.0">
+            <select id="unit" aria-label="Unità di densità">
+              <option value="kgm3">kg/m³</option>
+              <option value="kgl">kg/L</option>
+            </select>
+            <select id="base" aria-label="Base della densità">
+              <option value="vac">in vuoto</option>
+              <option value="air">in aria</option>
+            </select>
+          </div>
+          <span class="hint" id="rho-hint">Lettura alla temperatura del campione.</span>
+        </div>
+
+        <div class="field">
+          <label for="temp">Temperatura t (°C)</label>
+          <input id="temp" type="number" step="any" inputmode="decimal" value="22.5">
+          <span class="hint">Temperatura del campione al momento della lettura, o temperatura a cui vuoi la densità.</span>
+        </div>
+
+        <div class="field">
+          <label for="group">Gruppo di prodotto</label>
+          <select id="group">
+            <option value="auto">Automatico (dalla densità a 15 °C)</option>
+            <option value="gas">Benzine</option>
+            <option value="trans">Zona di transizione</option>
+            <option value="jet">Jet fuel / cherosene</option>
+            <option value="fuel">Gasolio / oli combustibili</option>
+          </select>
+          <span class="hint">In automatico il gruppo segue gli intervalli di densità della tabella.</span>
+        </div>
+
+        <label class="chk" id="hyd-wrap" for="hyd">
+          <input id="hyd" type="checkbox">
+          <span>Lettura con densimetro di vetro: applica la correzione per la dilatazione del vetro prima del calcolo.</span>
+        </label>
+      </form>
+
+      <div class="readout" aria-live="polite">
+        <div class="big">
+          <span class="eyebrow" id="out-label">Densità a 15 °C</span>
+          <div class="value" id="out-value">—</div>
+          <div class="alt" id="out-alt"></div>
+        </div>
+        <dl class="kv">
+          <div><dt>VCF (t → 15 °C)</dt><dd id="o-vcf">—</dd></div>
+          <div><dt>Gruppo usato</dt><dd id="o-group"><span class="chip">—</span></dd></div>
+          <div><dt>α₁₅ (1/°C)</dt><dd id="o-alpha">—</dd></div>
+          <div><dt>Δρ</dt><dd id="o-delta">—</dd></div>
+        </dl>
+        <div id="warn" class="msg" hidden></div>
+        <div class="actions">
+          <button class="btn primary" id="copy" type="button">Copia risultato</button>
+          <button class="btn" id="swap" type="button">Usa nel calcolo inverso</button>
+        </div>
+        <div class="toast" id="toast" role="status"></div>
+      </div>
+    </div>
+
+    <div class="strip">
+      <div class="strip-head">
+        <h3>Densità alle diverse temperature</h3>
+        <p id="strip-cap">Per la stessa densità a 15 °C, in kg/m³.</p>
+      </div>
+      <div class="scroll"><table id="strip"></table></div>
+    </div>
+  </section>
+
+  <!-- VOLUMI -->
+  <section id="volumi" class="calc" aria-label="Conversione volumi">
+    <div class="modes" role="tablist">
+      <button id="vtab-from15" role="tab" aria-selected="true" data-vmode="from15">
+        <strong>Litri a 15 °C → litri a t</strong><span>V_t = V₁₅ / VCF</span>
+      </button>
+      <button id="vtab-to15" role="tab" aria-selected="false" data-vmode="to15">
+        <strong>Litri a t → litri a 15 °C</strong><span>V₁₅ = V_t · VCF</span>
+      </button>
+    </div>
+    <div class="calc-body">
+      <form class="inputs" id="vform" novalidate>
+        <div class="field">
+          <label for="vol" id="vol-label">Volume a 15 °C (litri)</label>
+          <input id="vol" type="number" step="any" inputmode="decimal" value="10000">
+          <span class="hint" id="vol-hint">Ad esempio i litri a 15 °C riportati sul documento di trasporto.</span>
+        </div>
+        <div class="field">
+          <label for="vrho">Densità a 15 °C (kg/m³)</label>
+          <div class="row3">
+            <input id="vrho" type="number" step="any" inputmode="decimal" value="840.3">
+            <select id="vbase" aria-label="Base della densità">
+              <option value="vac">in vuoto</option>
+              <option value="air">in aria</option>
+            </select>
+            <button class="btn" id="vrho-pull" type="button">Prendi dal calcolo</button>
+          </div>
+          <span class="hint">Serve per scegliere il coefficiente di dilatazione. «Prendi dal calcolo» usa la densità a 15 °C della sezione sopra.</span>
+        </div>
+        <div class="field">
+          <label for="vtemp">Temperatura del prodotto t (°C)</label>
+          <input id="vtemp" type="number" step="any" inputmode="decimal" value="22.5">
+        </div>
+        <div class="field">
+          <label for="vgroup">Gruppo di prodotto</label>
+          <select id="vgroup">
+            <option value="auto">Automatico (dalla densità a 15 °C)</option>
+            <option value="gas">Benzine</option>
+            <option value="trans">Zona di transizione</option>
+            <option value="jet">Jet fuel / cherosene</option>
+            <option value="fuel">Gasolio / oli combustibili</option>
+          </select>
+        </div>
+      </form>
+      <div class="readout" aria-live="polite">
+        <div class="big">
+          <span class="eyebrow" id="vout-label">Volume alla temperatura t</span>
+          <div class="value" id="vout-value">—</div>
+        </div>
+        <dl class="kv">
+          <div><dt>VCF (Tab. 54B)</dt><dd id="v-vcf">—</dd></div>
+          <div><dt>Differenza</dt><dd id="v-delta">—</dd></div>
+          <div><dt>Massa in vuoto</dt><dd id="v-mass">—</dd></div>
+          <div><dt>Massa in aria</dt><dd id="v-massair">—</dd></div>
+          <div><dt>ρ₁₅ vuoto / aria</dt><dd id="v-rhos">—</dd></div>
+          <div><dt>Gruppo usato</dt><dd id="v-group"><span class="chip">—</span></dd></div>
+        </dl>
+        <div id="vwarn" class="msg" hidden></div>
+        <div class="actions">
+          <button class="btn primary" id="vcopy" type="button">Copia risultato</button>
+          <button class="btn" id="vswap" type="button">Usa nel calcolo inverso</button>
+        </div>
+        <div class="toast" id="vtoast" role="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ISTRUZIONI -->
+  <section id="istruzioni" class="text">
+    <div>
+      <div class="eyebrow">Come si usa</div>
+      <h2>Istruzioni</h2>
+    </div>
+    <div class="cols">
+      <ol class="steps">
+        <li><div><b>Scegli la direzione del calcolo.</b>
+          <span>«Osservata → 15 °C» porta una lettura fatta alla temperatura del campione alla densità di riferimento. «15 °C → temperatura t» fa il contrario: parte dalla densità a 15 °C e ricava la densità a una temperatura data.</span></div></li>
+        <li><div><b>Inserisci la densità.</b>
+          <span>Puoi lavorare in kg/m³ (ad esempio 835,0) oppure in kg/L (0,8350). Usa il punto come separatore decimale se la tastiera lo richiede.</span></div></li>
+        <li><div><b>Inserisci la temperatura in °C.</b>
+          <span>Il calcolo si aggiorna mentre scrivi. Temperature sotto i 15 °C danno una densità a 15 °C più bassa della lettura, sopra i 15 °C più alta.</span></div></li>
+        <li><div><b>Controlla il gruppo di prodotto.</b>
+          <span>«Automatico» assegna il gruppo in base alla densità a 15 °C, come fa la tabella. Forzalo solo se il prodotto ha una densità che lo farebbe cadere nel gruppo sbagliato.</span></div></li>
+        <li><div><b>Leggi e copia il risultato.</b>
+          <span>Il riquadro mostra densità, fattore di correzione del volume (VCF) e coefficiente α₁₅. «Usa nel calcolo inverso» trasferisce il risultato nell'altra modalità per una verifica.</span></div></li>
+      </ol>
+      <div class="prose">
+        <h3>Esempio</h3>
+        <p>Gasolio letto a <span class="mono">835,0 kg/m³</span> alla temperatura di <span class="mono">22,5 °C</span>. In modalità «Osservata → 15 °C» il risultato è <span class="mono">840,3 kg/m³</span> a 15 °C con un VCF di <span class="mono">0,9937</span>: a 22,5 °C ogni litro di prodotto corrisponde a 0,9937 litri a 15 °C.</p>
+        <h3>Densità in vuoto o in aria</h3>
+        <p>Accanto a ogni campo densità scegli se il valore che inserisci è in vuoto, la base delle tabelle e dei certificati di laboratorio, oppure in aria, cioè apparente, come compare in alcuni documenti commerciali. Il risultato è sempre mostrato in vuoto con il valore in aria sotto. La differenza è di circa 1,1 kg/m³.</p>
+        <h3>Convertire i volumi</h3>
+        <p>Nella sezione «Volumi» inserisci i litri, la densità a 15 °C del prodotto e la temperatura. Con lo stesso gasolio a 22,5 °C, <span class="mono">10.000 L</span> a 15 °C occupano <span class="mono">10.063,8 L</span> alla temperatura del prodotto. Se conosci solo la densità osservata, calcola prima la densità a 15 °C nella sezione sopra e poi premi «Prendi dal calcolo».</p>
+        <h3>Quando usare la correzione del vetro</h3>
+        <p>Attivala solo se la densità è stata letta con un densimetro di vetro e la procedura del tuo laboratorio la prevede. Con densimetri elettronici (a tubo oscillante) e con dati già corretti va lasciata spenta.</p>
+        <h3>Avvisi</h3>
+        <p>Il calcolatore segnala i valori fuori dall'intervallo della tabella (densità a 15 °C tra 653 e 1075 kg/m³, temperatura tra −18 e +150 °C). Il calcolo viene comunque mostrato, ma è un'estrapolazione.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METODO -->
+  <section id="metodo" class="text">
+    <div>
+      <div class="eyebrow">Come funziona</div>
+      <h2>Il metodo</h2>
+    </div>
+    <p class="lead">Le Tabelle 53B e 54B delle Petroleum Measurement Tables (ASTM D1250, API MPMS Capitolo 11.1, IP 200, ISO 91-1) non sono un elenco di misure: sono generate da un'equazione. Questo calcolatore applica la stessa equazione, quindi riproduce i valori delle tabelle senza doverle consultare.</p>
+
+    <div class="cols">
+      <div class="prose">
+        <h3>1. Coefficiente di dilatazione a 15 °C</h3>
+        <p>Il coefficiente di dilatazione termica α₁₅ dipende dalla densità a 15 °C e da due costanti, K₀ e K₁, specifiche del gruppo di prodotto:</p>
+        <div class="formula">α₁₅ = K₀ / ρ₁₅² + K₁ / ρ₁₅</div>
+        <p>Nella zona di transizione tra benzine e jet fuel la forma è diversa:</p>
+        <div class="formula">α₁₅ = A + B / ρ₁₅²</div>
+
+        <h3>2. Fattore di correzione del volume</h3>
+        <p>Con Δt = t − 15 °C, il fattore che porta un volume da t a 15 °C (Tabella 54B) è:</p>
+        <div class="formula">VCF = exp[ −α₁₅ · Δt · (1 + 0,8 · α₁₅ · Δt) ]</div>
+        <p>La massa non cambia con la temperatura, quindi la densità a t e quella a 15 °C sono legate dal VCF:</p>
+        <div class="formula">ρ_t = ρ₁₅ · VCF</div>
+        <p>Per i volumi vale la relazione opposta, perché il volume cresce quando la densità cala:</p>
+        <div class="formula">V₁₅ = V_t · VCF        V_t = V₁₅ / VCF</div>
+        <p>La massa in vuoto è m = V₁₅ · ρ₁₅ (con V in m³ e ρ in kg/m³) e non dipende dalla temperatura.</p>
+      </div>
+
+      <div class="prose">
+        <h3>3. Da densità osservata a 15 °C (53B)</h3>
+        <p>α₁₅ dipende da ρ₁₅, che è proprio l'incognita. Il calcolo procede per iterazioni: si parte da ρ₁₅ = ρ_t, si calcola α₁₅ e VCF, si ricava un nuovo ρ₁₅ = ρ_t / VCF e si ripete finché la variazione scende sotto 0,0001 kg/m³. Bastano di solito tre o quattro passaggi. In modalità automatica il gruppo di prodotto viene riassegnato a ogni passaggio.</p>
+
+        <h3>4. Da 15 °C a temperatura t (54B)</h3>
+        <p>Qui ρ₁₅ è noto: si calcola direttamente α₁₅, poi il VCF e infine ρ_t = ρ₁₅ · VCF. Nessuna iterazione.</p>
+
+        <h3>Densità in vuoto e in aria</h3>
+        <p>Le tabelle lavorano con la densità in vuoto (massa vera / volume). La densità in aria tiene conto della spinta dell'aria su prodotto e masse campione, come se il prodotto fosse pesato su una bilancia. Con densità convenzionale dell'aria ρₐ = 1,2 kg/m³ e masse campione in acciaio ρ_w = 8000 kg/m³:</p>
+        <div class="formula">ρ_aria  = (ρ_vuoto − ρₐ) / (1 − ρₐ/ρ_w)
+ρ_vuoto = ρ_aria · (1 − ρₐ/ρ_w) + ρₐ</div>
+        <p>Per i prodotti petroliferi la differenza è di circa 1,1 kg/m³. La massa in aria dei volumi segue la stessa regola: m_aria = V₁₅ · ρ₁₅,aria.</p>
+
+        <h3>Correzione del densimetro di vetro</h3>
+        <p>Il vetro si dilata con la temperatura e falsa leggermente la lettura. Se attivata, la lettura viene corretta prima del calcolo con:</p>
+        <div class="formula">ρ_corr = ρ_letta · [1 − 0,000023·Δt − 0,00000002·Δt²]</div>
+      </div>
+    </div>
+
+    <div class="prose" style="max-width:none">
+      <h3>Costanti per gruppo di prodotto</h3>
+      <div class="scroll">
+        <table class="coef">
+          <thead><tr><th>Gruppo</th><th>Intervallo ρ₁₅ (kg/m³)</th><th style="text-align:right">K₀ / A</th><th style="text-align:right">K₁ / B</th></tr></thead>
+          <tbody>
+            <tr><td>Benzine</td><td class="mono">653,0 – 770,5</td><td class="n">346,4228</td><td class="n">0,4388</td></tr>
+            <tr><td>Zona di transizione</td><td class="mono">770,5 – 787,5</td><td class="n">A = −0,00336312</td><td class="n">B = 2680,3206</td></tr>
+            <tr><td>Jet fuel / cherosene</td><td class="mono">787,5 – 838,5</td><td class="n">594,5418</td><td class="n">0</td></tr>
+            <tr><td>Gasolio / oli combustibili</td><td class="mono">838,5 – 1075,0</td><td class="n">186,9696</td><td class="n">0,4862</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="note">Riferimenti: ASTM D1250-80 / API MPMS Capitolo 11.1 (1980), Tabelle 53B e 54B; ISO 91-1. La revisione API MPMS 11.1:2004 ha sostituito le tabelle stampate con procedure di calcolo che usano arrotondamenti intermedi diversi. Le differenze sono di norma entro pochi decimi di kg/m³ e nel quarto decimale del VCF. Per usi fiscali o contrattuali verifica quale edizione è richiesta. I risultati sono mostrati con densità a 0,1 kg/m³ e VCF a 4 decimali.</p>
+  </section>
+
+  <footer>Calcolo eseguito interamente nel browser. Nessun dato viene inviato.</footer>
+</div>
+
+<script>
+(function () {
+  const GROUPS = {
+    gas:   { name: "Benzine", min: 653.0, max: 770.5, k0: 346.4228, k1: 0.4388 },
+    trans: { name: "Transizione", min: 770.5, max: 787.5, A: -0.00336312, B: 2680.3206 },
+    jet:   { name: "Jet / cherosene", min: 787.5, max: 838.5, k0: 594.5418, k1: 0 },
+    fuel:  { name: "Gasolio / oli comb.", min: 838.5, max: 1075.0, k0: 186.9696, k1: 0.4862 }
+  };
+
+  function groupFor(r15) {
+    if (r15 < 770.5) return "gas";
+    if (r15 < 787.5) return "trans";
+    if (r15 < 838.5) return "jet";
+    return "fuel";
+  }
+  function alpha(r15, g) {
+    const c = GROUPS[g];
+    if (g === "trans") return c.A + c.B / (r15 * r15);
+    return c.k0 / (r15 * r15) + c.k1 / r15;
+  }
+  function vcf(a, t) {
+    const dt = t - 15;
+    return Math.exp(-a * dt * (1 + 0.8 * a * dt));
+  }
+  // Densità in aria (apparente) <-> in vuoto: aria 1,2 kg/m³, masse campione 8000 kg/m³
+  const RHO_AIR = 1.2, RHO_W = 8000;
+  function vacToAir(r) { return (r - RHO_AIR) / (1 - RHO_AIR / RHO_W); }
+  function airToVac(r) { return r * (1 - RHO_AIR / RHO_W) + RHO_AIR; }
+
+  function hydCorr(rho, t) {
+    const dt = t - 15;
+    return rho * (1 - 0.000023 * dt - 0.00000002 * dt * dt);
+  }
+
+  // Tabella 53B: densità osservata -> 15 °C
+  function to15(rhoT, t, forced) {
+    let r15 = rhoT, g, a, f, it = 0;
+    for (; it < 50; it++) {
+      g = forced === "auto" ? groupFor(r15) : forced;
+      a = alpha(r15, g);
+      f = vcf(a, t);
+      const next = rhoT / f;
+      if (Math.abs(next - r15) < 1e-4) { r15 = next; it++; break; }
+      r15 = next;
+    }
+    g = forced === "auto" ? groupFor(r15) : forced;
+    a = alpha(r15, g); f = vcf(a, t);
+    return { r15, g, a, f, it };
+  }
+  // Tabella 54B: 15 °C -> t
+  function fromT(r15, t, forced) {
+    const g = forced === "auto" ? groupFor(r15) : forced;
+    const a = alpha(r15, g);
+    const f = vcf(a, t);
+    return { rt: r15 * f, g, a, f };
+  }
+
+  const $ = id => document.getElementById(id);
+  const el = {
+    rho: $("rho"), unit: $("unit"), base: $("base"), outAlt: $("out-alt"), temp: $("temp"), group: $("group"), hyd: $("hyd"), hydWrap: $("hyd-wrap"),
+    rhoLabel: $("rho-label"), rhoHint: $("rho-hint"), outLabel: $("out-label"), outValue: $("out-value"),
+    vcf: $("o-vcf"), grp: $("o-group"), alpha: $("o-alpha"), delta: $("o-delta"),
+    warn: $("warn"), toast: $("toast"), strip: $("strip"), stripCap: $("strip-cap")
+  };
+  let mode = "to15";
+  let lastResult = null;
+
+  const fmt = (x, d) => x.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const isKgL = () => el.unit.value === "kgl";
+  const toKgM3 = v => isKgL() ? v * 1000 : v;
+  const fromKgM3 = v => isKgL() ? v / 1000 : v;
+  const unitTxt = () => isKgL() ? "kg/L" : "kg/m³";
+  const fmtRho = v => isKgL() ? fmt(v / 1000, 4) : fmt(v, 1);
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === m)));
+    if (m === "to15") {
+      el.rhoLabel.textContent = "Densità osservata a t";
+      el.rhoHint.textContent = "Lettura alla temperatura del campione.";
+      el.outLabel.textContent = "Densità a 15 °C · in vuoto";
+      el.hydWrap.hidden = false;
+    } else {
+      el.rhoLabel.textContent = "Densità a 15 °C";
+      el.rhoHint.textContent = "Densità di riferimento, da certificato o da calcolo.";
+      el.outLabel.textContent = "Densità alla temperatura t · in vuoto";
+      el.hydWrap.hidden = true;
+    }
+    try { localStorage.setItem("d15-mode", m); } catch (e) {}
+    compute();
+  }
+
+  function compute() {
+    const raw = parseFloat(String(el.rho.value).replace(",", "."));
+    const t = parseFloat(String(el.temp.value).replace(",", "."));
+    const forced = el.group.value;
+    const warns = [];
+
+    if (!isFinite(raw) || !isFinite(t) || raw <= 0) {
+      el.outValue.innerHTML = "—"; el.outAlt.textContent = "";
+      el.vcf.textContent = el.alpha.textContent = el.delta.textContent = "—";
+      el.grp.innerHTML = '<span class="chip">—</span>';
+      el.warn.hidden = false;
+      el.warn.textContent = "Inserisci una densità maggiore di zero e una temperatura numerica.";
+      lastResult = null; renderStrip(null); return;
+    }
+
+    const isAir = el.base.value === "air";
+    const rhoIn = isAir ? airToVac(toKgM3(raw)) : toKgM3(raw);
+    let rho = rhoIn;
+    if (isAir) warns.push(`Densità in aria convertita in vuoto: ${fmt(rhoIn,2)} kg/m³ usata nel calcolo.`);
+    if (rho < 400 || rho > 1500) warns.push(`Il valore ${fmt(rho,1)} kg/m³ non sembra una densità di prodotto petrolifero: controlla l'unità di misura.`);
+
+    let r15, out, res;
+    if (mode === "to15") {
+      if (el.hyd.checked) rho = hydCorr(rho, t);
+      res = to15(rho, t, forced);
+      r15 = res.r15; out = r15;
+      el.delta.textContent = (r15 - rhoIn >= 0 ? "+" : "") + fmt(r15 - rhoIn, 1) + " kg/m³";
+    } else {
+      r15 = rho;
+      res = fromT(r15, t, forced);
+      out = res.rt;
+      el.delta.textContent = (out - r15 >= 0 ? "+" : "") + fmt(out - r15, 1) + " kg/m³";
+    }
+
+    if (r15 < 653 || r15 > 1075) warns.push(`Densità a 15 °C di ${fmt(r15,1)} kg/m³: fuori dall'intervallo della tabella (653–1075 kg/m³). Il valore è un'estrapolazione.`);
+    if (t < -18 || t > 150) warns.push(`Temperatura di ${fmt(t,1)} °C: fuori dall'intervallo della tabella (−18 / +150 °C).`);
+    if (forced !== "auto" && forced !== groupFor(r15)) warns.push(`Gruppo forzato su «${GROUPS[forced].name}», ma la densità a 15 °C ricade in «${GROUPS[groupFor(r15)].name}».`);
+
+    el.outValue.innerHTML = fmtRho(out) + "<small>" + unitTxt() + "</small>";
+    el.outAlt.textContent = "in aria: " + fmtRho(vacToAir(out)) + " " + unitTxt();
+    el.vcf.textContent = fmt(res.f, 4) + "  (" + res.f.toFixed(6) + ")";
+    el.alpha.textContent = res.a.toExponential(5).replace(".", ",");
+    el.grp.innerHTML = '<span class="chip">' + GROUPS[res.g].name + (forced === "auto" ? "" : " · forzato") + "</span>";
+    if (el.hyd.checked && mode === "to15") warns.push(`Lettura corretta per il vetro: ${fmt(rho,2)} kg/m³ usata nel calcolo.`);
+
+    el.warn.hidden = warns.length === 0;
+    el.warn.innerHTML = warns.map(w => "<div>" + w + "</div>").join("");
+
+    lastResult = { out, r15, t };
+    renderStrip(r15, t, forced);
+    try { localStorage.setItem("d15-unit", el.unit.value); } catch (e) {}
+  }
+
+  function renderStrip(r15, t, forced) {
+    if (r15 == null) { el.strip.innerHTML = ""; return; }
+    const temps = [-10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+    const near = temps.reduce((p, c) => Math.abs(c - t) < Math.abs(p - t) ? c : p, temps[0]);
+    let h = "<thead><tr><th>t (°C)</th>" + temps.map(x => `<th class="${x===15?'cur':''}">${x}</th>`).join("") + "</tr></thead><tbody>";
+    h += "<tr><td>ρ in vuoto (" + unitTxt() + ")</td>" + temps.map(x => {
+      const r = fromT(r15, x, forced).rt;
+      return `<td class="${x===15?'cur':''}">${fmtRho(r)}</td>`;
+    }).join("") + "</tr>";
+    h += "<tr><td>VCF</td>" + temps.map(x => {
+      const f = fromT(r15, x, forced).f;
+      return `<td class="${x===15?'cur':''}">${fmt(f,4)}</td>`;
+    }).join("") + "</tr></tbody>";
+    el.strip.innerHTML = h;
+    el.stripCap.textContent = `Per ρ₁₅ = ${fmtRho(r15)} ${unitTxt()}. La colonna evidenziata è il riferimento a 15 °C.`;
+  }
+
+  function flash(msg) {
+    el.toast.textContent = msg;
+    clearTimeout(flash.t);
+    flash.t = setTimeout(() => { el.toast.textContent = ""; }, 2500);
+  }
+
+  document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  ["input", "change"].forEach(ev => {
+    [el.rho, el.temp, el.group, el.hyd, el.base].forEach(x => x.addEventListener(ev, compute));
+  });
+  el.unit.addEventListener("change", () => {
+    const v = parseFloat(String(el.rho.value).replace(",", "."));
+    if (isFinite(v)) el.rho.value = isKgL() ? (v / 1000).toFixed(4) : (v * 1000).toFixed(1);
+    compute();
+  });
+  $("form").addEventListener("submit", e => e.preventDefault());
+
+  $("copy").addEventListener("click", () => {
+    if (!lastResult) return;
+    const lab = mode === "to15" ? "Densità a 15 °C" : `Densità a ${fmt(lastResult.t,1)} °C`;
+    const text = `${lab}: ${fmtRho(lastResult.out)} ${unitTxt()} in vuoto (${fmtRho(vacToAir(lastResult.out))} ${unitTxt()} in aria) — VCF ${el.vcf.textContent.split(" ")[0]}`;
+    const done = () => flash("Risultato copiato.");
+    try {
+      navigator.clipboard.writeText(text).then(done, () => fallback(text));
+    } catch (e) { fallback(text); }
+  });
+  function fallback(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    flash(ok ? "Risultato copiato." : "Copia non consentita qui: seleziona il valore a mano.");
+  }
+
+  $("swap").addEventListener("click", () => {
+    if (!lastResult) return;
+    el.rho.value = isKgL() ? (lastResult.out / 1000).toFixed(4) : lastResult.out.toFixed(1);
+    if (el.hyd.checked) el.hyd.checked = false;
+    el.base.value = "vac";
+    setMode(mode === "to15" ? "fromt" : "to15");
+    flash("Risultato trasferito nel calcolo inverso.");
+  });
+
+  // ---- Volumi ----
+  const v = {
+    vol: $("vol"), rho: $("vrho"), base: $("vbase"), massAir: $("v-massair"), rhos: $("v-rhos"), temp: $("vtemp"), group: $("vgroup"),
+    label: $("vol-label"), hint: $("vol-hint"), outLabel: $("vout-label"), out: $("vout-value"),
+    vcf: $("v-vcf"), delta: $("v-delta"), mass: $("v-mass"), grp: $("v-group"), warn: $("vwarn"), toast: $("vtoast")
+  };
+  let vmode = "from15", vlast = null;
+  const num = x => parseFloat(String(x).replace(",", "."));
+  const fmtL = x => fmt(x, 1) + " L";
+
+  function setVMode(m) {
+    vmode = m;
+    document.querySelectorAll("[data-vmode]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.vmode === m)));
+    if (m === "from15") {
+      v.label.textContent = "Volume a 15 °C (litri)";
+      v.hint.textContent = "Ad esempio i litri a 15 °C riportati sul documento di trasporto.";
+      v.outLabel.textContent = "Volume alla temperatura t";
+    } else {
+      v.label.textContent = "Volume alla temperatura t (litri)";
+      v.hint.textContent = "Litri misurati alla temperatura del prodotto, ad esempio da contalitri o da tabella serbatoio.";
+      v.outLabel.textContent = "Volume a 15 °C";
+    }
+    computeV();
+  }
+
+  function computeV() {
+    const vol = num(v.vol.value), rIn = num(v.rho.value), t = num(v.temp.value), forced = v.group.value;
+    const r15 = v.base.value === "air" ? airToVac(rIn) : rIn;
+    const warns = [];
+    if (!isFinite(vol) || !isFinite(r15) || !isFinite(t) || vol < 0 || r15 <= 0) {
+      v.out.innerHTML = "—"; v.vcf.textContent = v.delta.textContent = v.mass.textContent = v.massAir.textContent = v.rhos.textContent = "—";
+      v.grp.innerHTML = '<span class="chip">—</span>';
+      v.warn.hidden = false; v.warn.textContent = "Inserisci volume, densità a 15 °C e temperatura numerici.";
+      vlast = null; return;
+    }
+    if (r15 < 400 || r15 > 1500) warns.push("La densità va inserita in kg/m³ (ad esempio 840,3, non 0,8403).");
+    else if (r15 < 653 || r15 > 1075) warns.push(`Densità a 15 °C di ${fmt(r15,1)} kg/m³: fuori dall'intervallo della tabella (653–1075 kg/m³).`);
+    if (t < -18 || t > 150) warns.push(`Temperatura di ${fmt(t,1)} °C: fuori dall'intervallo della tabella (−18 / +150 °C).`);
+    const res = fromT(r15, t, forced);
+    if (forced !== "auto" && forced !== groupFor(r15)) warns.push(`Gruppo forzato su «${GROUPS[forced].name}», ma la densità a 15 °C ricade in «${GROUPS[groupFor(r15)].name}».`);
+
+    let out, v15;
+    if (vmode === "from15") { v15 = vol; out = vol / res.f; }
+    else { out = vol * res.f; v15 = out; }
+    const d = out - vol;
+
+    v.out.innerHTML = fmt(out, 1) + "<small>L</small>";
+    v.vcf.textContent = fmt(res.f, 4) + "  (" + res.f.toFixed(6) + ")";
+    v.delta.textContent = (d >= 0 ? "+" : "") + fmtL(d);
+    v.mass.textContent = fmt(v15 / 1000 * r15, 1) + " kg";
+    v.massAir.textContent = fmt(v15 / 1000 * vacToAir(r15), 1) + " kg";
+    v.rhos.textContent = fmt(r15, 1) + " / " + fmt(vacToAir(r15), 1);
+    v.grp.innerHTML = '<span class="chip">' + GROUPS[res.g].name + (forced === "auto" ? "" : " · forzato") + "</span>";
+    v.warn.hidden = warns.length === 0;
+    v.warn.innerHTML = warns.map(w => "<div>" + w + "</div>").join("");
+    vlast = { out, t };
+  }
+
+  function vflash(msg) {
+    v.toast.textContent = msg;
+    clearTimeout(vflash.t);
+    vflash.t = setTimeout(() => { v.toast.textContent = ""; }, 2500);
+  }
+
+  document.querySelectorAll("[data-vmode]").forEach(b => b.addEventListener("click", () => setVMode(b.dataset.vmode)));
+  ["input", "change"].forEach(ev => [v.vol, v.rho, v.base, v.temp, v.group].forEach(x => x.addEventListener(ev, computeV)));
+  $("vform").addEventListener("submit", e => e.preventDefault());
+  $("vrho-pull").addEventListener("click", () => {
+    if (!lastResult) { vflash("Nessuna densità a 15 °C disponibile nel calcolo sopra."); return; }
+    v.rho.value = lastResult.r15.toFixed(1);
+    v.base.value = "vac";
+    computeV();
+    vflash("Densità a 15 °C in vuoto presa dal calcolo: " + fmt(lastResult.r15, 1) + " kg/m³.");
+  });
+  $("vswap").addEventListener("click", () => {
+    if (!vlast) return;
+    v.vol.value = vlast.out.toFixed(1);
+    setVMode(vmode === "from15" ? "to15" : "from15");
+    vflash("Risultato trasferito nel calcolo inverso.");
+  });
+  $("vcopy").addEventListener("click", () => {
+    if (!vlast) return;
+    const lab = vmode === "from15" ? `Volume a ${fmt(vlast.t,1)} °C` : "Volume a 15 °C";
+    const text = `${lab}: ${fmtL(vlast.out)} — VCF ${v.vcf.textContent.split(" ")[0]}`;
+    const fb = () => {
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      ta.remove(); vflash(ok ? "Risultato copiato." : "Copia non consentita qui: seleziona il valore a mano.");
+    };
+    try { navigator.clipboard.writeText(text).then(() => vflash("Risultato copiato."), fb); } catch (e) { fb(); }
+  });
+  computeV();
+
+  try {
+    const u = localStorage.getItem("d15-unit");
+    if (u === "kgl") { el.unit.value = "kgl"; el.rho.value = (835.0/1000).toFixed(4); }
+    const m = localStorage.getItem("d15-mode");
+    if (m === "fromt") { setMode("fromt"); return; }
+  } catch (e) {}
+  compute();
+})();
+</script>
+</body>
+</html>
